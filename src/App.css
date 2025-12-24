@@ -4,7 +4,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -46,6 +47,7 @@ canvas {
 }
 
 .typed-text {
+  color: #f0b2bc;
   font-family: "Courier New", Courier, monospace;
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 600;
@@ -79,7 +81,7 @@ canvas {
 .hint-overlay {
   position: absolute;
   bottom: 2rem;
-  left: 50%;
+  left: 45%;
   transform: translateX(-50%);
   font-family: "Courier New", Courier, monospace;
   letter-spacing: 0.28em;

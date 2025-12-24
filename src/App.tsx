@@ -57,11 +57,11 @@ const CANDLE_DROP_START =
 const totalAnimationTime = CANDLE_DROP_START + CANDLE_DROP_DURATION;
 
 const ORBIT_TARGET = new Vector3(0, 1, 0);
-const ORBIT_INITIAL_RADIUS = 3;
-const ORBIT_INITIAL_HEIGHT = 1;
+const ORBIT_INITIAL_RADIUS = 6;
+const ORBIT_INITIAL_HEIGHT = 2;
 const ORBIT_INITIAL_AZIMUTH = Math.PI / 2;
 const ORBIT_MIN_DISTANCE = 2;
-const ORBIT_MAX_DISTANCE = 8;
+const ORBIT_MAX_DISTANCE = 15;
 const ORBIT_MIN_POLAR = Math.PI * 0;
 const ORBIT_MAX_POLAR = Math.PI / 2;
 
@@ -77,13 +77,13 @@ const BACKGROUND_FADE_START = Math.max(
 );
 
 const TYPED_LINES = [
-  "> hiii aainaa",
+  "> hiii aainaa 🎀",
   "...",
-  "> happy birthdayyyy",
+  "> happy birthdayyyy 💜",
   "...",
   "> i love you so much :3",
   "...",
-  "٩(◕‿◕)۶ ٩(◕‿◕)۶ ٩(◕‿◕)۶"
+  "٩(◕‿◕)۶ (｡◕‿‿◕｡) (๑ > ᴗ < ๑) ε(´｡•᎑•`)っ 💕"
 ];
 const TYPED_CHAR_DELAY = 100;
 const POST_TYPING_SCENE_DELAY = 1000;
@@ -99,7 +99,7 @@ type BirthdayCardConfig = {
 const BIRTHDAY_CARDS: ReadonlyArray<BirthdayCardConfig> = [
   {
     id: "confetti",
-    image: "/card.png",
+    image: "/happy birthday.png",
     position: [1, 0.081, -2],
     rotation: [-Math.PI / 2, 0, Math.PI / 3],
   }
@@ -266,25 +266,25 @@ function AnimatedScene({
       <group ref={tableGroup}>
         <Table />
         <PictureFrame
-          image="/frame2.jpg"
+          image="https://okw6lk8mnf.ufs.sh/f/PvMpqra7dZU6Du2b95JZz8T0cLkK4wEyWBmuPq173OIbd9a5"
           position={[0, 0.735, 3]}
           rotation={[0, 5.6, 0]}
           scale={0.75}
         />
         <PictureFrame
-          image="/frame3.jpg"
+          image="https://okw6lk8mnf.ufs.sh/f/PvMpqra7dZU6KAmjN2vH6MzgDPjBpvorlOZxIeGndLmhKbXE"
           position={[0, 0.735, -3]}
           rotation={[0, 4.0, 0]}
           scale={0.75}
         />
         <PictureFrame
-          image="/frame4.jpg"
+          image="https://okw6lk8mnf.ufs.sh/f/PvMpqra7dZU6EIEvs1HlT9x6M10eGSsfuQYV2mCDtB73jiOh"
           position={[-1.5, 0.735, 2.5]}
           rotation={[0, 5.4, 0]}
           scale={0.75}
         />
         <PictureFrame
-          image="/frame1.jpg"
+          image="https://okw6lk8mnf.ufs.sh/f/PvMpqra7dZU6RW6qX8LwVgfIdL3kP6XOuUM2Dxbmo1iSjCB8"
           position={[-1.5, 0.735, -2.5]}
           rotation={[0, 4.2, 0]}
           scale={0.75}
@@ -367,7 +367,7 @@ function EnvironmentBackgroundController({
 
 
 export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted] = useState(true);
   const [backgroundOpacity, setBackgroundOpacity] = useState(1);
   const [environmentProgress, setEnvironmentProgress] = useState(0);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
@@ -487,24 +487,42 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== "Space" && event.key !== " ") {
-        return;
-      }
-      event.preventDefault();
-      if (!hasStarted) {
+    // Attempt to play music immediately, and retry if it fails (e.g., due to loading or lack of interaction)
+    playBackgroundMusic();
+    const interval = setInterval(() => {
+      const audio = backgroundAudioRef.current;
+      if (audio && audio.paused) {
         playBackgroundMusic();
-        setHasStarted(true);
-        return;
+      } else if (audio && !audio.paused) {
+        clearInterval(interval);
       }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [playBackgroundMusic]);
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      playBackgroundMusic();
       if (hasAnimationCompleted && isCandleLit) {
         setIsCandleLit(false);
         setFireworksActive(true);
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== "Space" && event.key !== " ") {
+        return;
+      }
+      event.preventDefault();
+      handleInteraction();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("click", handleInteraction);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("click", handleInteraction);
+    };
   }, [hasStarted, hasAnimationCompleted, isCandleLit, playBackgroundMusic]);
 
   const handleCardToggle = useCallback((id: string) => {
@@ -539,7 +557,7 @@ export default function App() {
         </div>
       </div>
       {hasAnimationCompleted && isCandleLit && (
-        <div className="hint-overlay">press space to blow out the candle</div>
+        <div className="hint-overlay">press space or tap to blow out the candle drag to look around</div>
       )}
       <Canvas
         gl={{ alpha: true }}
